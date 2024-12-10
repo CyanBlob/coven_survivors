@@ -24,6 +24,8 @@ FetchContent_MakeAvailable(raylib)
 add_executable(${PROJECT_NAME})
 add_subdirectory(src)
 
+include_directories("3rd_party/entt/src")
+
 set_target_properties(${PROJECT_NAME} PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${PROJECT_NAME})
 

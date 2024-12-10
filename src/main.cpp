@@ -13,7 +13,9 @@
 
 #include "raylib.h"
 
-#include <stdlib.h>     // Required for: abs()
+#include <cstdlib>     // Required for: abs()
+
+#include "entt/entt.hpp"
 
 //------------------------------------------------------------------------------------
 // Program main entry point
