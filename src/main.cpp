@@ -17,6 +17,44 @@
 
 #include "entt/entt.hpp"
 
+struct position {
+    float x;
+    float y;
+};
+
+struct velocity {
+    float dx;
+    float dy;
+};
+
+void update(entt::registry &registry) {
+    auto view = registry.view<position, velocity>();
+
+    // use a callback
+    view.each([](const auto &pos, auto &vel) {
+    });
+
+    // use an extended callback
+    view.each([](const auto entity, const auto &pos, auto &vel) { /* ... */ });
+
+    // use a range-for
+    for(auto [entity, pos, vel]: view.each()) {
+
+        pos.x += vel.dx;
+        pos.y += vel.dy;
+
+        Rectangle box = { pos.x, pos.y, 200, 100 };
+
+        DrawRectangleRec(box, ORANGE);
+    }
+
+    // use forward iterators and get only the components of interest
+    for(auto entity: view) {
+        auto &vel = view.get<velocity>(entity);
+        // ...
+    }
+}
+
 //------------------------------------------------------------------------------------
 // Program main entry point
 //------------------------------------------------------------------------------------
@@ -44,6 +82,16 @@ int main(void)
     bool collision = false;         // Collision detection
 
     SetTargetFPS(60);               // Set our game to run at 60 frames-per-second
+
+    //EnTT------------------------------------------------------
+    entt::registry registry;
+
+    for(auto i = 0u; i < 10u; ++i) {
+        const auto entity = registry.create();
+        registry.emplace<position>(entity, i * 1.f, i * 1.f);
+        if(i % 2 == 0) { registry.emplace<velocity>(entity, i * .1f, i * .1f); }
+    }
+
     //----------------------------------------------------------
 
     // Main game loop
@@ -88,6 +136,8 @@ int main(void)
 
         DrawRectangleRec(boxA, GOLD);
         DrawRectangleRec(boxB, BLUE);
+
+        update(registry);
 
         if (collision)
         {
