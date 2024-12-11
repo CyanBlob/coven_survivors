@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.24...3.30)
-project(raylib-game-template)
+project(coven-survivors)
 
 include(FetchContent)
 
@@ -9,22 +9,25 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_CXX_STANDARD 20)
 
 # Dependencies
-set(RAYLIB_VERSION 5.0)
+set(RAYLIB_COMMIT b747eee)
+set(RAYGUI_COMMIT f11dc82)
 
 FetchContent_Declare(
-    raylib
-    DOWNLOAD_EXTRACT_TIMESTAMP OFF
-    URL https://github.com/raysan5/raylib/archive/refs/tags/${RAYLIB_VERSION}.tar.gz
-    FIND_PACKAGE_ARGS
+        raylib
+        GIT_REPOSITORY https://github.com/raysan5/raylib
+        GIT_TAG ${RAYLIB_COMMIT}
+        GIT_PROGRESS TRUE
 )
 
 FetchContent_MakeAvailable(raylib)
 
 # Our Project
-add_executable(${PROJECT_NAME})
+add_executable(${PROJECT_NAME}
+        src/components.h)
 add_subdirectory(src)
 
 include_directories("3rd_party/entt/src")
+include_directories("3rd_party")
 
 set_target_properties(${PROJECT_NAME} PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${PROJECT_NAME})
