@@ -20,6 +20,7 @@
 
 #include <cstdlib>
 #include <iostream>
+#include <sstream>
 
 #include "entt/entt.hpp"
 #include "components.h"
@@ -62,7 +63,8 @@ int main(void) {
 
     SetTargetFPS(60);               // Set our game to run at 60 frames-per-second
 
-    bool pause = false;             // Movement pause
+    bool pause = false;
+    bool debug = false;
 
     //EnTT------------------------------------------------------
     for (auto i = 0u; i < 10u; ++i) {
@@ -79,6 +81,9 @@ int main(void) {
     {
         if (IsKeyPressed(KEY_SPACE)) {
             pause = !pause;
+        }
+        if (IsKeyPressed(KEY_GRAVE)) {
+            debug = !debug;
         }
 
         if (!pause) {
@@ -101,6 +106,16 @@ int main(void) {
             if (result == 2) {
                 pause = false;
             }
+        }
+
+        if (debug) {
+            DrawFPS(0, 0);
+            auto view = entt_helpers::registry.view<entt::entity>();
+            std::size_t count = entt_helpers::registry.storage<entt::entity>().size();
+
+            std::stringstream ss;
+            ss << "Entities: "<<count;
+            DrawText(ss.str().c_str(), 0, 16, 20, DARKGREEN);
         }
 
         // Flush input event buffer?
