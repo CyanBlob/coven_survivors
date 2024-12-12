@@ -9,13 +9,16 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_CXX_STANDARD 20)
 
 # For debug _ONLY_
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O0")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0")
+#set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O0")
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0")
 
 # Dependencies
 set(RAYLIB_COMMIT b747eee)
 set(RAYGUI_COMMIT f11dc82)
 set(BOX2D_COMMIT d1581fb)
+
+# Set the option to build raylib with the SDL backend
+#set(BUILD_WITH_SDL ON CACHE BOOL "Build Raylib with SDL backend")
 
 FetchContent_Declare(
         raylib

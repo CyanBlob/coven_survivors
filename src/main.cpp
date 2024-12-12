@@ -81,12 +81,12 @@ int main(void) {
     SetTargetFPS(60);               // Set our game to run at 60 frames-per-second
 
     bool pause = false;
-    bool debug = false;
+    bool debug = true;
 
     Player player;
 
     //EnTT------------------------------------------------------
-    for (auto i = 0u; i < 10u; ++i) {
+    for (auto i = 0u; i < 10000u; ++i) {
         const auto entity = entt_helpers::registry.create();
         const auto x = (float) i;
         entt_helpers::registry.emplace<Sprite>(entity, 16, 16, PINK);
@@ -94,7 +94,7 @@ int main(void) {
 
         b2BodyDef bodyDef = b2DefaultBodyDef();
         bodyDef.type = b2_dynamicBody;
-        bodyDef.position = (b2Vec2) {x * 16 + 200, 216};
+        bodyDef.position = (b2Vec2) {x * 16 + 200, 400};
 
 
         auto bodyId = b2CreateBody(Box2dWrapper::worldId, &bodyDef);
@@ -125,6 +125,12 @@ int main(void) {
         if (!pause) {
             player.physics_update(entt_helpers::registry);
             player.update(entt_helpers::registry);
+        }
+
+        // Flush input event buffer?
+        PollInputEvents();
+
+        if (!pause) {
             physics_update(entt_helpers::registry);
             update(entt_helpers::registry);
         }
@@ -132,6 +138,7 @@ int main(void) {
         // Draw
         //-----------------------------------------------------
         renderer::begin();
+
         renderer::renderSprites();
 
         if (pause) {
@@ -155,11 +162,10 @@ int main(void) {
             std::stringstream ss;
             ss << "Entities: " << count;
             DrawText(ss.str().c_str(), 0, 16, 20, DARKGREEN);
-            Box2dWrapper::debug_draw_colliders(entt_helpers::registry);
+            //Box2dWrapper::debug_draw_colliders(entt_helpers::registry);
         }
 
-        // Flush input event buffer?
-        PollInputEvents();
+
         renderer::end();
         //-----------------------------------------------------
     }
