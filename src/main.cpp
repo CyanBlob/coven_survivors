@@ -31,6 +31,31 @@
 #include "box2d/box2d.h"
 #include "box2d_wrapper.h"
 
+//#include "box2cpp/box2cpp.h"
+
+void debug_draw_colliders(entt::registry &registry) {
+    auto view = registry.view<Velocity, Box2D>();
+    for (auto [entity, vel, b2d]: view.each()) {
+        auto body = b2Body_GetTransform(b2d.body);
+        b2Vec2 p = b2Body_GetPosition(b2d.body);
+
+        b2ShapeId shape;
+        b2Body_GetShapes(b2d.body, &shape, 1);
+
+        auto circle = b2Shape_GetCircle(shape);
+
+        DrawCircle(p.x + 8, p.y + 8, circle.radius, BLUE);
+
+        //auto polygon = b2Shape_GetPolygon(shape);
+        /*for (int i = 0; i < 8; ++i) {
+            b2Vec2 firstPoint = polygon.vertices[i];
+            b2Vec2 nextPoint = polygon.vertices[(i + 1) % 8];
+
+            DrawLine(firstPoint.x + p.x + 8, firstPoint.y + p.y + 8, nextPoint.x + p.x + 8, nextPoint.y + p.y + 8, BLUE);
+            DrawCircle(p.x + 8, p.y + 8, polygon.radius, BLUE);
+        }*/
+    }
+}
 
 void physics_update(entt::registry &registry) {
     b2World_Step(Box2dWrapper::worldId, GetFrameTime(), 4);
@@ -38,9 +63,10 @@ void physics_update(entt::registry &registry) {
 
     for (auto [entity, vel, b2d]: view.each()) {
 
-        auto scaledVel = Vector2Scale(vel.vel, GetFrameTime() * 100);
+        auto scaledVel = Vector2Scale(vel.vel, GetFrameTime());
 
-        b2Body_ApplyForceToCenter(b2d.body, b2Vec2{scaledVel.x, scaledVel.y}, false);
+        //b2Body_ApplyForceToCenter(b2d.body, b2Vec2{scaledVel.x, scaledVel.y}, false);
+        b2Body_SetLinearVelocity(b2d.body, b2Vec2{scaledVel.x, scaledVel.y});
     }
 }
 
@@ -90,17 +116,23 @@ int main(void) {
         const auto entity = entt_helpers::registry.create();
         const auto x = (float) i;
         entt_helpers::registry.emplace<Sprite>(entity, 16, 16, PINK);
-        entt_helpers::registry.emplace<Velocity>(entity, (10 - x) * 100.f, (10 - x) * -100.f);
+        entt_helpers::registry.emplace<Velocity>(entity, (10 - x) * 100.f, (10 - x) * 10.f);
 
         b2BodyDef bodyDef = b2DefaultBodyDef();
         bodyDef.type = b2_dynamicBody;
         bodyDef.position = (b2Vec2) {x * 16, 16};
 
-        b2Polygon boxPolygon = b2MakeBox(8, 8);
 
         auto bodyId = b2CreateBody(Box2dWrapper::worldId, &bodyDef);
+
         b2ShapeDef shapeDef = b2DefaultShapeDef();
-        b2CreatePolygonShape(bodyId, &shapeDef, &boxPolygon);
+
+        //shapeDef.density = 1.0f; // Set density
+        b2Circle circle = {0, 0, 8.0f}; // Center at (0,0) with radius 1
+        b2ShapeId shapeId = b2CreateCircleShape(bodyId, &shapeDef, &circle);
+
+        //b2Polygon boxPolygon = b2MakeRoundedBox(4, 8, 2);
+        //b2CreatePolygonShape(bodyId, &shapeDef, &boxPolygon);
 
         entt_helpers::registry.emplace<Box2D>(entity, bodyId);
     }
@@ -147,7 +179,9 @@ int main(void) {
             std::stringstream ss;
             ss << "Entities: " << count;
             DrawText(ss.str().c_str(), 0, 16, 20, DARKGREEN);
+            debug_draw_colliders(entt_helpers::registry);
         }
+
 
         // Flush input event buffer?
         PollInputEvents();

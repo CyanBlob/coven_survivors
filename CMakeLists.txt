@@ -41,6 +41,7 @@ add_subdirectory(src)
 
 include_directories("3rd_party/entt/src")
 include_directories("3rd_party")
+include_directories("3rd_party/box2cpp/include")
 
 set_target_properties(${PROJECT_NAME} PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${PROJECT_NAME})

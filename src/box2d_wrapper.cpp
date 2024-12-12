@@ -11,6 +11,7 @@ void Box2dWrapper::init() {
     b2WorldDef worldDef = b2DefaultWorldDef();
 
     // Realistic gravity is achieved by multiplying gravity by the length unit.
-    worldDef.gravity.y = .1f * lengthUnitsPerMeter;
+    //worldDef.gravity.y = .1f * lengthUnitsPerMeter;
+    worldDef.gravity.y = 0;
     worldId = b2CreateWorld(&worldDef);
 }
