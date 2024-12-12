@@ -16,17 +16,12 @@ void renderer::end() {
 }
 
 void renderer::renderSprites() {
-
-    //DrawRectangle(0, 0, screenWidth, screenUpperLimit, collision? RED : BLACK);
-
-    //DrawRectangleRec(boxA, GOLD);
-    //DrawRectangleRec(boxB, BLUE);
-
     // Use EnTT to draw entities
-    auto spritesView = entt_helpers::registry.view<const Sprite, const Position>();
+    auto spritesView = entt_helpers::registry.view<const Sprite, const Box2D>();
 
-    spritesView.each([](const Sprite &sprite, const auto &pos) {
-        DrawRectangle(pos.pos.x, pos.pos.y, sprite.width, sprite.height, sprite.color);
+    spritesView.each([](const Sprite &sprite, const auto &b2d) {
+        b2Vec2 p = b2Body_GetPosition(b2d.body);
+        DrawRectangle((int)p.x, (int)p.y, sprite.width, sprite.height, sprite.color);
     });
 }
 

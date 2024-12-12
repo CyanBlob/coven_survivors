@@ -8,6 +8,10 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 set(CMAKE_CXX_STANDARD 20)
 
+# For debug _ONLY_
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O0")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0")
+
 # Dependencies
 set(RAYLIB_COMMIT b747eee)
 set(RAYGUI_COMMIT f11dc82)
@@ -18,12 +22,21 @@ FetchContent_Declare(
         GIT_TAG ${RAYLIB_COMMIT}
         GIT_PROGRESS TRUE
 )
-
 FetchContent_MakeAvailable(raylib)
+
+FetchContent_Declare(
+        box2d
+        GIT_REPOSITORY https://github.com/erincatto/box2d.git
+        GIT_TAG main
+        GIT_SHALLOW TRUE
+        GIT_PROGRESS TRUE
+)
+FetchContent_MakeAvailable(box2d)
 
 # Our Project
 add_executable(${PROJECT_NAME}
-        src/components.h)
+        src/components.h
+        src/box2d_wrapper.cpp)
 add_subdirectory(src)
 
 include_directories("3rd_party/entt/src")
@@ -49,7 +62,7 @@ else()
 endif()
 
 #set(raylib_VERBOSE 1)
-target_link_libraries(${PROJECT_NAME} raylib)
+target_link_libraries(${PROJECT_NAME} raylib box2d)
 
 # Web Configurations
 if ("${PLATFORM}" STREQUAL "Web")

@@ -27,30 +27,48 @@
 #include "renderer.h"
 #include "entt_helpers.h"
 
+#include "box2d/math_functions.h"
+#include "box2d/box2d.h"
+#include "box2d_wrapper.h"
+
+
+void physics_update(entt::registry &registry) {
+    b2World_Step(Box2dWrapper::worldId, GetFrameTime(), 4);
+    auto view = registry.view<Velocity, Box2D>();
+
+    for (auto [entity, vel, b2d]: view.each()) {
+
+        auto scaledVel = Vector2Scale(vel.vel, GetFrameTime() * 100);
+
+        b2Body_ApplyForceToCenter(b2d.body, b2Vec2{scaledVel.x, scaledVel.y}, false);
+    }
+}
 
 void update(entt::registry &registry) {
-    auto view = registry.view<Position, Velocity>();
+    //b2World_Step(Box2dWrapper::worldId, GetFrameTime(), 4);
+    auto view = registry.view<Velocity, Box2D>();
 
     // use a callback
-    view.each([](const auto &pos, auto &vel) {
-    });
+    //view.each([](const auto &pos, auto &vel) {
+    //});
 
     // use an extended callback
-    view.each([](const auto entity, const auto &pos, auto &vel) { /* ... */ });
+    //view.each([](const auto entity, const auto &pos, auto &vel) { /* ... */ });
 
+    auto i = 0;
     // use a range-for
-    for (auto [entity, pos, vel]: view.each()) {
+    for (auto [entity, vel, b2d]: view.each()) {
 
-        auto scaledVel = Vector2Scale(vel.vel, GetFrameTime());
-        pos.pos.x += scaledVel.x;
-        pos.pos.y += scaledVel.y;
+        //b2Vec2 p = b2Body_GetPosition(b2d.body);
+
+        //std::cout << ++i << ": " << p.x << ", " << p.y << std::endl;
     }
 
     // use forward iterators and get only the components of interest
-    for (auto entity: view) {
+    /*for (auto entity: view) {
         auto &vel = view.get<Velocity>(entity);
         // ...
-    }
+    }*/
 }
 
 //------------------------------------------------------------------------------------
@@ -60,6 +78,7 @@ int main(void) {
     // Initialization
     //---------------------------------------------------------
     renderer::init();
+    Box2dWrapper::init();
 
     SetTargetFPS(60);               // Set our game to run at 60 frames-per-second
 
@@ -69,10 +88,21 @@ int main(void) {
     //EnTT------------------------------------------------------
     for (auto i = 0u; i < 10u; ++i) {
         const auto entity = entt_helpers::registry.create();
-        const auto x = (float)i;
-        entt_helpers::registry.emplace<Position>(entity, x * 1.f, x * 1.f);
+        const auto x = (float) i;
         entt_helpers::registry.emplace<Sprite>(entity, 16, 16, PINK);
-        entt_helpers::registry.emplace<Velocity>(entity, x * 3.1f, x * 3.1f);
+        entt_helpers::registry.emplace<Velocity>(entity, (10 - x) * 100.f, (10 - x) * -100.f);
+
+        b2BodyDef bodyDef = b2DefaultBodyDef();
+        bodyDef.type = b2_dynamicBody;
+        bodyDef.position = (b2Vec2) {x * 16, 16};
+
+        b2Polygon boxPolygon = b2MakeBox(8, 8);
+
+        auto bodyId = b2CreateBody(Box2dWrapper::worldId, &bodyDef);
+        b2ShapeDef shapeDef = b2DefaultShapeDef();
+        b2CreatePolygonShape(bodyId, &shapeDef, &boxPolygon);
+
+        entt_helpers::registry.emplace<Box2D>(entity, bodyId);
     }
     //----------------------------------------------------------
 
@@ -87,6 +117,7 @@ int main(void) {
         }
 
         if (!pause) {
+            physics_update(entt_helpers::registry);
             update(entt_helpers::registry);
         }
 
@@ -114,7 +145,7 @@ int main(void) {
             std::size_t count = entt_helpers::registry.storage<entt::entity>().size();
 
             std::stringstream ss;
-            ss << "Entities: "<<count;
+            ss << "Entities: " << count;
             DrawText(ss.str().c_str(), 0, 16, 20, DARKGREEN);
         }
 
