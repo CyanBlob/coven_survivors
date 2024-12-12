@@ -15,6 +15,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0")
 # Dependencies
 set(RAYLIB_COMMIT b747eee)
 set(RAYGUI_COMMIT f11dc82)
+set(BOX2D_COMMIT d1581fb)
 
 FetchContent_Declare(
         raylib
@@ -27,7 +28,7 @@ FetchContent_MakeAvailable(raylib)
 FetchContent_Declare(
         box2d
         GIT_REPOSITORY https://github.com/erincatto/box2d.git
-        GIT_TAG main
+        GIT_TAG ${BOX2D_COMMIT}
         GIT_SHALLOW TRUE
         GIT_PROGRESS TRUE
 )
@@ -36,7 +37,8 @@ FetchContent_MakeAvailable(box2d)
 # Our Project
 add_executable(${PROJECT_NAME}
         src/components.h
-        src/box2d_wrapper.cpp)
+        src/box2d_wrapper.cpp
+        src/player.cpp)
 add_subdirectory(src)
 
 include_directories("3rd_party/entt/src")

@@ -21,13 +21,13 @@ void renderer::renderSprites() {
 
     spritesView.each([](const Sprite &sprite, const auto &b2d) {
         b2Vec2 p = b2Body_GetPosition(b2d.body);
-        DrawRectangle((int)p.x, (int)p.y, sprite.width, sprite.height, sprite.color);
+        DrawRectangle((int) p.x - sprite.width / 2, (int) p.y - sprite.width / 2, sprite.width, sprite.height,
+                      sprite.color);
     });
 }
 
 void renderer::renderCollisionText(bool collision) {
-    if (collision)
-    {
+    if (collision) {
         // Draw collision area
         //DrawRectangleRec(boxCollision, LIME);
 

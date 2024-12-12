@@ -12,13 +12,12 @@
 ********************************************************************************************/
 
 #include "raylib.h"
-#include "raymath.h"
 
 #define RAYGUI_IMPLEMENTATION
 
 #include "raygui.h"
 
-#include <cstdlib>
+
 #include <iostream>
 #include <sstream>
 
@@ -27,35 +26,8 @@
 #include "renderer.h"
 #include "entt_helpers.h"
 
-#include "box2d/math_functions.h"
-#include "box2d/box2d.h"
 #include "box2d_wrapper.h"
-
-//#include "box2cpp/box2cpp.h"
-
-void debug_draw_colliders(entt::registry &registry) {
-    auto view = registry.view<Velocity, Box2D>();
-    for (auto [entity, vel, b2d]: view.each()) {
-        auto body = b2Body_GetTransform(b2d.body);
-        b2Vec2 p = b2Body_GetPosition(b2d.body);
-
-        b2ShapeId shape;
-        b2Body_GetShapes(b2d.body, &shape, 1);
-
-        auto circle = b2Shape_GetCircle(shape);
-
-        DrawCircle(p.x + 8, p.y + 8, circle.radius, BLUE);
-
-        //auto polygon = b2Shape_GetPolygon(shape);
-        /*for (int i = 0; i < 8; ++i) {
-            b2Vec2 firstPoint = polygon.vertices[i];
-            b2Vec2 nextPoint = polygon.vertices[(i + 1) % 8];
-
-            DrawLine(firstPoint.x + p.x + 8, firstPoint.y + p.y + 8, nextPoint.x + p.x + 8, nextPoint.y + p.y + 8, BLUE);
-            DrawCircle(p.x + 8, p.y + 8, polygon.radius, BLUE);
-        }*/
-    }
-}
+#include "player.h"
 
 void physics_update(entt::registry &registry) {
     b2World_Step(Box2dWrapper::worldId, GetFrameTime(), 4);
@@ -111,6 +83,8 @@ int main(void) {
     bool pause = false;
     bool debug = false;
 
+    Player player;
+
     //EnTT------------------------------------------------------
     for (auto i = 0u; i < 10u; ++i) {
         const auto entity = entt_helpers::registry.create();
@@ -120,7 +94,7 @@ int main(void) {
 
         b2BodyDef bodyDef = b2DefaultBodyDef();
         bodyDef.type = b2_dynamicBody;
-        bodyDef.position = (b2Vec2) {x * 16, 16};
+        bodyDef.position = (b2Vec2) {x * 16 + 200, 216};
 
 
         auto bodyId = b2CreateBody(Box2dWrapper::worldId, &bodyDef);
@@ -149,6 +123,8 @@ int main(void) {
         }
 
         if (!pause) {
+            player.physics_update(entt_helpers::registry);
+            player.update(entt_helpers::registry);
             physics_update(entt_helpers::registry);
             update(entt_helpers::registry);
         }
@@ -179,9 +155,8 @@ int main(void) {
             std::stringstream ss;
             ss << "Entities: " << count;
             DrawText(ss.str().c_str(), 0, 16, 20, DARKGREEN);
-            debug_draw_colliders(entt_helpers::registry);
+            Box2dWrapper::debug_draw_colliders(entt_helpers::registry);
         }
-
 
         // Flush input event buffer?
         PollInputEvents();
