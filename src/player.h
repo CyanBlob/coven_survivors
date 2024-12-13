@@ -19,7 +19,7 @@ public:
     b2BodyId bodyId{};
 
 private:
-    Vector2 baseVel = {5000.f, 5000.f};
+    Vector2 baseVel = {8000.f, 8000.f};
 };
 
 
