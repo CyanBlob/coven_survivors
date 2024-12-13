@@ -2,23 +2,28 @@
 #include "box2d_wrapper.h"
 #include "raymath.h"
 #include "renderer.h"
+#include "player.h"
+
+b2BodyId Entities::playerId = b2BodyId();
 
 void Entities::physics_update(entt::registry &registry) {
     b2World_Step(Box2dWrapper::worldId, GetFrameTime(), 4);
-    auto view = registry.view<Velocity, Box2D>();
+    auto view = registry.view<Speed, Box2D>();
 
-    for (auto [entity, vel, b2d]: view.each()) {
+    for (auto [entity, speed, b2d]: view.each()) {
 
-        auto scaledVel = Vector2Scale(vel.vel, GetFrameTime());
+        auto target = b2Normalize(b2Body_GetPosition(playerId) - b2Body_GetPosition(b2d.body));
+        target *= GetFrameTime() * speed.speed;
+        //auto scaledVel = Vector2Scale(vel.vel, GetFrameTime());
 
         //b2Body_ApplyForceToCenter(b2d.body, b2Vec2{scaledVel.x, scaledVel.y}, false);
-        b2Body_SetLinearVelocity(b2d.body, b2Vec2{scaledVel.x, scaledVel.y});
+        b2Body_SetLinearVelocity(b2d.body, b2Vec2{target.x, target.y});
     }
 }
 
 void Entities::update(entt::registry &registry) {
     //b2World_Step(Box2dWrapper::worldId, GetFrameTime(), 4);
-    auto view = registry.view<Velocity, Box2D>();
+    auto view = registry.view<Speed, Box2D>();
 
     // use a callback
     //view.each([](const auto &pos, auto &vel) {
@@ -42,13 +47,15 @@ void Entities::update(entt::registry &registry) {
         // ...
     }*/
 }
+
 b2BodyId Entities::spawn() {
     const auto entity = entt_helpers::registry.create();
 
     entt_helpers::registry.emplace<Sprite>(entity, 16, 16, PINK);
-    entt_helpers::registry.emplace<Velocity>(entity,
-                                             static_cast<float>(GetRandomValue(-1000, 1000)),
-                                             static_cast<float>(GetRandomValue(-1000, 1000)));
+    entt_helpers::registry.emplace<Speed>(entity, 5000.f);
+    //entt_helpers::registry.emplace<Velocity>(entity,
+    //static_cast<float>(GetRandomValue(-1000, 1000)),
+    //static_cast<float>(GetRandomValue(-1000, 1000)));
 
     b2BodyDef bodyDef = b2DefaultBodyDef();
     bodyDef.type = b2_dynamicBody;

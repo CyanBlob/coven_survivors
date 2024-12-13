@@ -11,6 +11,8 @@ public:
     static void physics_update(entt::registry &registry);
     static void update(entt::registry &registry);
 
+    static b2BodyId playerId;
+
 };
 
 

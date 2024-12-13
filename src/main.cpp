@@ -42,11 +42,13 @@ int main(void) {
     SetTargetFPS(60);               // Set our game to run at 60 frames-per-second
 
     bool pause = false;
-    bool debug = true;
+    bool debug = false;
 
     SetRandomSeed(0);
 
     Player player;
+
+    Entities::playerId = player.bodyId;
 
     //EnTT------------------------------------------------------
     TraceLog(LOG_INFO, "Spawning initial entities\n");
