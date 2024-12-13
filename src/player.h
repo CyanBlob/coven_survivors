@@ -13,6 +13,7 @@ public:
     void physics_update(entt::registry &registry);
 
     void update(entt::registry &registry);
+    b2Vec2 getPosition();
 
     entt::entity entity;
     b2BodyId bodyId{};

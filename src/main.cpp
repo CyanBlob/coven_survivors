@@ -23,51 +23,12 @@
 
 #include "entt/entt.hpp"
 #include "components.h"
+#include "entities.h"
 #include "renderer.h"
 #include "entt_helpers.h"
 
 #include "box2d_wrapper.h"
 #include "player.h"
-
-void physics_update(entt::registry &registry) {
-    b2World_Step(Box2dWrapper::worldId, GetFrameTime(), 4);
-    auto view = registry.view<Velocity, Box2D>();
-
-    for (auto [entity, vel, b2d]: view.each()) {
-
-        auto scaledVel = Vector2Scale(vel.vel, GetFrameTime());
-
-        //b2Body_ApplyForceToCenter(b2d.body, b2Vec2{scaledVel.x, scaledVel.y}, false);
-        b2Body_SetLinearVelocity(b2d.body, b2Vec2{scaledVel.x, scaledVel.y});
-    }
-}
-
-void update(entt::registry &registry) {
-    //b2World_Step(Box2dWrapper::worldId, GetFrameTime(), 4);
-    auto view = registry.view<Velocity, Box2D>();
-
-    // use a callback
-    //view.each([](const auto &pos, auto &vel) {
-    //});
-
-    // use an extended callback
-    //view.each([](const auto entity, const auto &pos, auto &vel) { /* ... */ });
-
-    auto i = 0;
-    // use a range-for
-    for (auto [entity, vel, b2d]: view.each()) {
-
-        //b2Vec2 p = b2Body_GetPosition(b2d.body);
-
-        //std::cout << ++i << ": " << p.x << ", " << p.y << std::endl;
-    }
-
-    // use forward iterators and get only the components of interest
-    /*for (auto entity: view) {
-        auto &vel = view.get<Velocity>(entity);
-        // ...
-    }*/
-}
 
 //------------------------------------------------------------------------------------
 // Program main entry point
@@ -83,33 +44,19 @@ int main(void) {
     bool pause = false;
     bool debug = true;
 
+    SetRandomSeed(0);
+
     Player player;
 
     //EnTT------------------------------------------------------
-    for (auto i = 0u; i < 10000u; ++i) {
-        const auto entity = entt_helpers::registry.create();
-        const auto x = (float) i;
-        entt_helpers::registry.emplace<Sprite>(entity, 16, 16, PINK);
-        entt_helpers::registry.emplace<Velocity>(entity, (10 - x) * 100.f, (10 - x) * 10.f);
+    TraceLog(LOG_INFO, "Spawning initial entities\n");
 
-        b2BodyDef bodyDef = b2DefaultBodyDef();
-        bodyDef.type = b2_dynamicBody;
-        bodyDef.position = (b2Vec2) {x * 16 + 200, 400};
+    double startTime = GetTime();
 
-
-        auto bodyId = b2CreateBody(Box2dWrapper::worldId, &bodyDef);
-
-        b2ShapeDef shapeDef = b2DefaultShapeDef();
-
-        //shapeDef.density = 1.0f; // Set density
-        b2Circle circle = {0, 0, 8.0f}; // Center at (0,0) with radius 1
-        b2ShapeId shapeId = b2CreateCircleShape(bodyId, &shapeDef, &circle);
-
-        //b2Polygon boxPolygon = b2MakeRoundedBox(4, 8, 2);
-        //b2CreatePolygonShape(bodyId, &shapeDef, &boxPolygon);
-
-        entt_helpers::registry.emplace<Box2D>(entity, bodyId);
+    for (auto i = 0u; i < 1000u; ++i) {
+        Entities::spawn();
     }
+    TraceLog(LOG_INFO, "Done spawning initial entities (took %fms)\n", (GetTime() - startTime) * 1000);
     //----------------------------------------------------------
 
     // Main game loop
@@ -131,15 +78,32 @@ int main(void) {
         PollInputEvents();
 
         if (!pause) {
-            physics_update(entt_helpers::registry);
-            update(entt_helpers::registry);
+            if (debug) {
+                startTime = GetTime();
+            }
+            Entities::physics_update(entt_helpers::registry);
+            if (debug) {
+                TraceLog(LOG_INFO, "Entity physics took %fms", (GetTime() - startTime) * 1000);
+                startTime = GetTime();
+            }
+            Entities::update(entt_helpers::registry);
+            if (debug) {
+                TraceLog(LOG_INFO, "Entity update took %fms", (GetTime() - startTime) * 1000);
+            }
         }
 
         // Draw
         //-----------------------------------------------------
         renderer::begin();
 
+        if (debug) {
+            startTime = GetTime();
+        }
         renderer::renderSprites();
+
+        if (debug) {
+            TraceLog(LOG_INFO, "Render sprites took %fms", (GetTime() - startTime) * 1000);
+        }
 
         if (pause) {
             float popupWidth = 250;

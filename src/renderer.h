@@ -11,8 +11,8 @@ public:
     static void renderUI();
     static void init();
 
-    static const int screenWidth = 800;
-    static const int screenHeight = 450;
+    static const int screenWidth = 1920;
+    static const int screenHeight = 1080;
     static const int screenUpperLimit = 40;      // Top menu limits
 
 

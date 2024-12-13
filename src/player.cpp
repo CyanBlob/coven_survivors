@@ -16,7 +16,7 @@ Player::Player() {
 
     b2ShapeDef shapeDef = b2DefaultShapeDef();
 
-    //shapeDef.density = 1.0f; // Set density
+    shapeDef.density = 100.0f; // Set density
     b2Circle circle = {0, 0, 16.0f};
     b2CreateCircleShape(bodyId, &shapeDef, &circle);
 
@@ -47,4 +47,8 @@ void Player::physics_update(entt::registry &registry) {
 
 void Player::update(entt::registry &registry) {
 
+}
+
+b2Vec2 Player::getPosition() {
+    return b2Body_GetPosition(bodyId);
 }

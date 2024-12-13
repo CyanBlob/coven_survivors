@@ -41,7 +41,8 @@ FetchContent_MakeAvailable(box2d)
 add_executable(${PROJECT_NAME}
         src/components.h
         src/box2d_wrapper.cpp
-        src/player.cpp)
+        src/player.cpp
+        src/entities.cpp)
 add_subdirectory(src)
 
 include_directories("3rd_party/entt/src")
