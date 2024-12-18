@@ -6,12 +6,14 @@
 
 #include "raylib.h"
 
-void renderer::begin() {
+void renderer::begin(const Camera2D &camera) {
     BeginDrawing();
+    BeginMode2D(camera);
     ClearBackground(RAYWHITE);
 }
 
 void renderer::end() {
+    EndMode2D();
     EndDrawing();
 }
 

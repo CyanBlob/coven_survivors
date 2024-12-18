@@ -96,7 +96,7 @@ int main() {
 
         // Draw
         //-----------------------------------------------------
-        renderer::begin();
+        renderer::begin(player.get_camera());
 
         if (debug) {
             startTime = GetTime();
@@ -121,6 +121,8 @@ int main() {
         }
 
         if (debug) {
+            EndMode2D(); // ignore camera; draw to screen
+
             DrawFPS(0, 0);
             auto view = entt_helpers::registry.view<entt::entity>();
             std::size_t count = entt_helpers::registry.storage<entt::entity>().size();
@@ -128,6 +130,9 @@ int main() {
             std::stringstream ss;
             ss << "Entities: " << count;
             DrawText(ss.str().c_str(), 0, 16, 20, DARKGREEN);
+            DrawCircle(renderer::screenWidth / 2, renderer::screenHeight / 2, 4, PURPLE);
+
+            BeginMode2D(player.get_camera()); // resume drawing to camera
             //Box2dWrapper::debug_draw_colliders(entt_helpers::registry);
         }
 

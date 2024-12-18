@@ -1,10 +1,11 @@
 #ifndef COVEN_SURVIVORS_RENDERER_H
 #define COVEN_SURVIVORS_RENDERER_H
 
+#include "raylib.h"
 
 class renderer {
 public:
-    static void begin();
+    static void begin(const Camera2D &camera);
     static void end();
     static void renderSprites();
     static void renderCollisionText(bool collision);

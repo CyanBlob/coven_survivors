@@ -15,11 +15,14 @@ public:
     void update(entt::registry &registry);
     b2Vec2 getPosition();
 
+    const Camera2D& get_camera() {return camera;}
+
     entt::entity entity;
     b2BodyId bodyId{};
 
 private:
     Vector2 baseVel = {8000.f, 8000.f};
+    Camera2D camera{0};
 };
 
 
