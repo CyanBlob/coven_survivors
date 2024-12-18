@@ -8,11 +8,14 @@
 class Entities {
 public:
     static b2BodyId spawn();
+
     static void physics_update(entt::registry &registry);
+
     static void update(entt::registry &registry);
 
-    static b2BodyId playerId;
+    static void spawn_bullet(const ShootPlayer &shot, const Box2D &b2d);
 
+    static b2BodyId playerId;
 };
 
 
